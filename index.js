@@ -51,35 +51,94 @@ app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
 
 //creator routes
-app.post('/api/creator', upload.single('image'),authenticateUser, creatorCltr.create)
-app.get('/api/creator', authenticateUser, creatorCltr.show);
-app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
-app.post('/api/creator/follow', creatorCltr.followers)
-app.post('/api/creator/unfollow', creatorCltr.unFollow)
-app.delete('/api/creator/:id', authenticateUser, creatorCltr.delete);
+app.post('/api/creator', upload.single('image'),authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization, creatorCltr.create)
+app.get('/api/creator', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization, creatorCltr.show);
+app.put('/api/creator/:id', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization, creatorCltr.update);
+app.post('/api/creator/follow', (req, res, next) =>{
+  req.permittedRoles = ['users']
+  next()
+}, authorization, creatorCltr.followers)
+app.post('/api/creator/unfollow', (req, res, next) =>{
+  req.permittedRoles = ['users']
+  next()
+}, authorization, creatorCltr.unFollow)
+app.delete('/api/creator/:id', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,creatorCltr.delete);
 
 // content api routes
 
-app.post('/api/content/create',upload.single('content'), authenticateUser, contentCltr.create)
-app.get('/api/content', contentCltr.showAll)
-app.put('/api/content/:id', contentCltr.update)
-app.post('/api/content/:id', contentCltr.delete)
-app.post('/api/post/like', contentCltr.addLike)
-app.post('/api/post/unlike', contentCltr.removeLike)
+app.post('/api/content/create',upload.single('content'), authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization, contentCltr.create)
+app.get('/api/content', (req, res, next) =>{
+  req.permittedRoles = ['creator, users']
+  next()
+}, authorization ,contentCltr.showAll)
 
-app.post('/api/comments', contentCltr.comment)
+app.put('/api/content/:id', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization,contentCltr.update)
+app.post('/api/content/:id',authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,contentCltr.delete)
+app.post('/api/post/like', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,contentCltr.addLike)
+app.post('/api/post/unlike', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,contentCltr.removeLike)
+
+app.post('/api/comments', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['users']
+  next()
+}, authorization ,contentCltr.comment)
 // app.delete('/api/comments', contentCltr.delete);
-app.delete('/api/comments/:contentId/:commentId', contentCltr.delete);
+app.delete('/api/comments/:contentId/:commentId',authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['users']
+  next()
+}, authorization ,contentCltr.delete);
 
 // Subscription plans
-app.post('/api/subscribePlans', subscriptionCltr.create)
-app.put('/api/subscription/update/:id', subscriptionCltr.update)
-app.delete('/api/subscription-plans/:id', subscriptionCltr.delete)
+app.post('/api/subscribePlans', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,subscriptionCltr.create)
+app.put('/api/subscription/update/:id', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,subscriptionCltr.update)
+app.delete('/api/subscription-plans/:id', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator']
+  next()
+}, authorization ,subscriptionCltr.delete)
 
 //subscribers 
 
-app.post('/api/subscriber', subscribersCltr.subscribe)
-app.delete('/api/unSubscribe', subscribersCltr.unSubscribe)
+app.post('/api/subscriber', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['creator, users']
+  next()
+}, authorization,subscribersCltr.subscribe)
+app.delete('/api/unSubscribe', authenticateUser, (req, res, next) =>{
+  req.permittedRoles = ['users']
+  next()
+}, authorization ,subscribersCltr.unSubscribe)
+
 
 app.listen(PORT, () => {
     console.log('server is running on port', PORT);
