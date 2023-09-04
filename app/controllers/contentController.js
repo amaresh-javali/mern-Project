@@ -119,40 +119,7 @@ contentCltr.addLike = async(req, res) =>{
 }
  
 
-// contentCltr.removeLike = async (req, res) => {
-//     const { userId, postId } = req.body;
-//     try {
-//         console.log("Received request with userId:", userId);
-//         console.log("Received request with postId:", postId);
 
-//         const post = await Content.findById(postId);
-//         console.log("Retrieved post from database:", post);
-
-//         if (!post) {
-//             return res.status(404).json({ error: "Post not found" });
-//         }
-
-//         // Find the index of the like associated with the specific user
-//         const likeIndex = post.likes.findIndex(like => like.userId === userId);
-
-//         if (likeIndex !== -1) {
-//             // Remove the like from the array if the user's like was found
-//             post.likes.splice(likeIndex, 1);
-
-//             console.log("Post after removing like:", post);
-
-//             await post.save();
-//             console.log("Post saved successfully");
-
-//             return res.json({ message: "Post like removed successfully" });
-//         } else {
-//             return res.status(404).json({ error: "Like not found for the specified user" });
-//         }
-//     } catch (error) {
-//         console.error("Error:", error);
-//         return res.status(500).json({ error: "Internal server error" });
-//     }
-// };
 
 //create a new comment
 
@@ -165,11 +132,6 @@ contentCltr.removeLike = async (req, res) => {
 
         const post = await Content.findById(postId);
         console.log("Retrieved post from the database:", post.likes);
-
-        // if (!post) {
-        //     return res.status(404).json({ error: "Post not found" });
-        // }
-
         // Use the filter method to create a new array without the like
         post.likes = post.likes.filter(like => like.userId.equals(userId));
 
@@ -209,24 +171,7 @@ contentCltr.comment = async(req, res) =>{
     }
 }
 
-// contentCltr.delete = async(req, res) =>{
-//     try {
-//         const contentId = req.params.contentId
-//         const commentId = req.params.commentId
-        
-//         const content = await Content.findByIdAndUpdate(
-//             contentId,
-//             {$pull : {comments: {_id: commentId } } },
-//             {new: true }
-//         )
-//         if(!content) {
-//             return res.status(404).json({message: 'Content not found'})
-//         }
-//         res.status(200).json({message: 'comment delete successfully '})
-//     } catch(error) {
-//         res.status(500).json({ message: "server error", error: error.message})
-//     }
-// }
+
 
 contentCltr.delete = async (req, res) => {
     try {
