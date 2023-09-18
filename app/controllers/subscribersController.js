@@ -14,24 +14,6 @@ subscribersCltr.subscribe = async(req, res) =>{
         res.json(e.message)
     }
 }
-// Controller function to unsubscribe a user
-// subscribersCltr.unSubscribe = async (req, res)=> {
-//     const { subscriberId } = req.params;
-//     const { userId } = req.body;
-//     // console.log(subscriberId)
-//     console.log(userId)
-
-//     try {
-//         const subscriber = await Subscribers.findById(subscriberId);
-//          subscriber.Subscribers = subscriber.subscribers.filter(sub => sub.userId !== userId);
-//         await subscriber.save();
-
-//         res.json({subscriber,  message: 'User unsubscribed successfully.' });
-//     } catch (error) {
-//         console.error(error);
-//         res.json({ message: 'An error occurred while unsubscribing the user.' });
-//     }
-// }
 
 subscribersCltr.unSubscribe = async (req, res) => {
   const subscriberId = req.body.id;

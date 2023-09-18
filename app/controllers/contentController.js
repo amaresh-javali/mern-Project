@@ -5,10 +5,11 @@ const contentCltr = {}
 // create a content
 contentCltr.create = async(req, res) =>{
     try{
+        console.log(req.body)
         const body = req.body
-        const content = req.file
-        const type = content.mimetype.startsWith('image') ? 'image' : 'video'
-        const createContent = new Content({...body, type, path: content.filename})
+        const fileType = req.file
+        // const type = fileType.mimetype.startsWith('image') ? 'image' : 'video'
+        const createContent = new Content({title:body.title,body:body.body,type:body.type,image:body.image,id:body.id, fileType: fileType.filename})
         const postContent = await createContent.save()
         res.json(postContent)
         // const newContent = new Content(body)
@@ -23,6 +24,7 @@ contentCltr.create = async(req, res) =>{
 contentCltr.showAll = async(req, res) =>{
     try {
         const contents = await Content.find()
+        console.log(contents)
         res.status(200).json(contents)
     } catch(error) {
         res.status(400).json({error:'Failed to retrive content', message: error.message})
@@ -56,16 +58,20 @@ contentCltr.update = async(req, res) =>{
     }
 }
 // delete a content
-contentCltr.delete = async (req, res) =>{
-    try{
-        const deleteContent = await Content.findByIdAndDelete(req.params.id)
-        if(deleteContent) {
-            return res.status(200).json({message:'content deleted successfully'})
-        } 
-    } catch(e) {
-        res.status(400).json({e: 'Failed to delete content'})
+contentCltr.delete = async (req, res) => {
+    try {
+        const deleteContent = await Content.findByIdAndDelete(req.params.id);
+
+        if (!deleteContent) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+
+        res.status(200).json({ message: 'Content deleted successfully' });
+    } catch (error) {
+        console.log('Attempting to delete content with ID:', req.params.id);    
+        res.status(500).json({ error: 'Failed to delete content' });
     }
-}
+};
 // adding a like to specific content 
 // contentCltr.likes = async(req, res) =>{
 //     try{
@@ -77,6 +83,7 @@ contentCltr.delete = async (req, res) =>{
 //             {_id:res.content._id},
 //             {$push: {likes:{userId}}}
 //         )
+//         console.log("like added", addLike)
 //         res.json(addLike)
 //     } catch(e) {
 //         res.status(400).json({message: e.message})
@@ -87,18 +94,10 @@ contentCltr.delete = async (req, res) =>{
 contentCltr.addLike = async(req, res) =>{
     const { userId, postId } = req.body
     console.log(userId)
-
     try {
         // Find the post by postId
         const post = await Content.findById(postId);
         // console.log(post)
-
-        // if (!post) {
-        //     return res.status(404).json({ error: "Post not found" });
-        // }
-        // const userId = userId.id
-        // console.log(userId)
-
         // Check if the user has already liked the post
         // const existingLike = post.likes.find(like => like.userId.equals(userId));
         // if (existingLike) {
@@ -108,21 +107,14 @@ contentCltr.addLike = async(req, res) =>{
         // Add the like
         post.likes.push({ userId });
         // console.log(post.likes)
-
         // Save the updated post
         await post.save();
-
         return res.json({ message: "Post liked successfully" });
     } catch (error) {
         return res.status(500).json({ error: "Internal server " });
     }
 }
- 
-
-
-
 //create a new comment
-
 contentCltr.removeLike = async (req, res) => {
     const { userId, postId } = req.body;
     console.log(userId)
@@ -138,6 +130,7 @@ contentCltr.removeLike = async (req, res) => {
         console.log("Post after removing like:", post.likes);
 
         await post.save();
+        console.log('post after removing',post.likes)
         console.log("Post saved successfully");
 
         return res.json({ message: "Post like removed successfully" });
@@ -147,12 +140,11 @@ contentCltr.removeLike = async (req, res) => {
     }
 };
 
-
-
 contentCltr.comment = async(req, res) =>{
     try{
         const contentId = req.body.contentId
         const { body, userId } = req.body
+        console.log('body',body, 'userId',userId)
 
         const content = await Content.findById(contentId)
         if(!content) {
@@ -171,8 +163,6 @@ contentCltr.comment = async(req, res) =>{
     }
 }
 
-
-
 contentCltr.delete = async (req, res) => {
     try {
         const contentId = req.params.contentId;
@@ -189,25 +179,14 @@ contentCltr.delete = async (req, res) => {
         const updatedContent = await Content.findOneAndUpdate(
             { _id: contentId },
             { $pull: { comments: { _id: commentId } } },
-            { new: true, arrayFilters: [{ 'comment._id': commentId }] }
+            { new: true, arrayFilters: [{ 'comments._id': commentId }] }
         )
 
-        res.status(200).json({ message: 'Comment deleted successfully' });
+        res.status(200).json({ updatedContent, message: 'Comment deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(404).json({ message: 'Server error', error: error.message });
     }
 };
-
-
-
-
-
-
-
-
-
-
- 
 
 
 module.exports = contentCltr

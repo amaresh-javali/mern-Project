@@ -6,12 +6,15 @@ const creatorCltr = {};
 creatorCltr.create = async (req, res) => {
     try {
         const body = req.body;
+        console.log('Request Body:', body);
         const id = req.params.id;
         const image = req.file;
+        console.log(id)
 
+        const filter = { _id: id };
         // Find the user by ID and update their role to 'creator'
-        const updatedUser = await User.findOneAndUpdate(id, { role: 'creator' }, { new: true });
-
+        const updatedUser = await User.findOneAndUpdate(filter, { role: 'creator' }, { new: true });
+        console.log(updatedUser, "upsatedUser")
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -43,21 +46,24 @@ creatorCltr.show = async (req, res) => {
 }
 
 creatorCltr.update = async (req, res) => {
-    console.log('hi')
+    console.log('hi');
     try {
         const updatedCreator = await Creator.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        )
-        if (updatedCreator) {
-            return res.json(updatedCreator)
+        );
+
+        if (!updatedCreator) {
+            return res.status(404).json({ error: 'Creator not found' });
         }
-        res.status(404).json({ error: 'creator not found' })
-    } catch (e) {
-        res.json({ e: 'Failed to update creator' })
+
+        res.json(updatedCreator);
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        res.status(500).json({ error: 'Failed to update creator' });
     }
-}
+};
 
 creatorCltr.delete = async (req, res) => {
     try {

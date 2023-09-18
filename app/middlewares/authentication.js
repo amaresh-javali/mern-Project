@@ -8,6 +8,7 @@ const authenticateUser = (req, res, next) =>{
             req.user = {
                 _id: tokenData._id
             }
+            // console.log('User authenticated. User ID:', req.user._id);
             next()
         } catch (e) {
             res.status(404).json({

@@ -42,17 +42,17 @@ const contentSchema = new Schema({
             }
         }
     ],
-    isVisible: [
+    isVisible: 
         {
             type: Boolean,
-            required:true
+            default:true
         }
-    ],
+    ,
     isDraft: {
         type: Boolean,
         default: false
     },
-    path:{
+    fileType:{
         type:String,
         required:true
     }

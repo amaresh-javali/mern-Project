@@ -1,10 +1,11 @@
-const authorization = (req, res, next) =>{
-    if(req.permittedRoles.includes(req.user.role)){
+const authorizeUser = (req, res, next) => {
+    if(req.permittedRoles.includes(req.user.role)) {
         next()
     } else {
-        res.status(403).join({
-            error: 'Access denied'
+        res.status(403).json({
+            errors: 'Access denied'
         })
     }
 }
-module.exports = authorization
+
+module.exports = authorizeUser 
