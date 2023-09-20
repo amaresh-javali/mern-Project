@@ -95,7 +95,6 @@ contentCltr.addLike = async(req, res) =>{
     const { userId, postId } = req.body
     console.log(userId)
     try {
-        // Find the post by postId
         const post = await Content.findById(postId);
         // console.log(post)
         // Check if the user has already liked the post
