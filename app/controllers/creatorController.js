@@ -7,14 +7,16 @@ creatorCltr.create = async (req, res) => {
     try {
         const body = req.body;
         console.log('Request Body:', body);
-        const id = req.params.id;
-        const image = req.file;
-        console.log(id)
+        const id = req.user._id;
+        //const image = req.file;
+        console.log(id);
+        body.userId = id; 
 
         const filter = { _id: id };
         // Find the user by ID and update their role to 'creator'
         const updatedUser = await User.findOneAndUpdate(filter, { role: 'creator' }, { new: true });
-        console.log(updatedUser, "upsatedUser")
+        console.log(updatedUser, "updatedUser")
+       
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -22,16 +24,18 @@ creatorCltr.create = async (req, res) => {
         // Create a new Creator instance with the provided data
         const newCreator = new Creator({
             ...body,
-            image: image.filename // Assuming you store the filename in the 'image' field
+            //image: image.filename // Assuming you store the filename in the 'image' field
         });
 
         // Save the new creator to the database
         const creatorDoc = await newCreator.save();
 
         res.status(200).json(creatorDoc);
-    } catch (error) {
+    }
+    catch (error) 
+    {
         console.error(error);
-        res.status(400).json({ error: 'Failed to create creator', message: error.message });
+        res.status(400).json('Failed to create your account');
     }
 };
 
