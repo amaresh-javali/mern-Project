@@ -1,3 +1,4 @@
+const { Schema } = require('mongoose')
 const Content = require('../models/contentModel')
 // const User = require('../models/userModel')
 const contentCltr = {}
@@ -91,28 +92,26 @@ contentCltr.delete = async (req, res) => {
 // }
 
 // remove a like to specific content
-contentCltr.addLike = async(req, res) =>{
-    const { userId, postId } = req.body
-    console.log(userId)
+contentCltr.addLike = async (req, res) => {
+    const { userId, postId } = req.body;
+    console.log(userId);
     try {
-        const post = await Content.findById(postId);
-        // console.log(post)
-        // Check if the user has already liked the post
-        // const existingLike = post.likes.find(like => like.userId.equals(userId));
-        // if (existingLike) {
-        //     return res.status(409).json({ message: "User has already liked the post" });
-        // }
-
-        // Add the like
-        post.likes.push({ userId });
-        // console.log(post.likes)
-        // Save the updated post
-        await post.save();
-        return res.json({ message: "Post liked successfully" });
+      const post = await Content.findById(postId);
+      // Check if the user has already liked the post
+      const existingLike = post.likes.find((like) => like.userId.equals(userId));
+      if (existingLike) {
+        return res.status(409).json({ message: "User has already liked the post" });
+      }
+      // Add the like
+      post.likes.push({ userId });
+      // Save the updated post
+      await post.save();
+      return res.json({ message: "Post liked successfully" });
     } catch (error) {
-        return res.status(500).json({ error: "Internal server " });
+      return res.status(500).json({ error: "Internal server error" });
     }
-}
+  };
+  
 //create a new comment
 contentCltr.removeLike = async (req, res) => {
     const { userId, postId } = req.body;
@@ -139,53 +138,64 @@ contentCltr.removeLike = async (req, res) => {
     }
 };
 
-contentCltr.comment = async(req, res) =>{
-    try{
-        const contentId = req.body.contentId
-        const { body, userId } = req.body
-        console.log('body',body, 'userId',userId)
-
-        const content = await Content.findById(contentId)
-        if(!content) {
-            return res.status(404).json({message: 'Content not found'})
-        }
-        const newComment = {
-            body,
-            userId,
-            postId: contentId
-        }
-        content.comments.push(newComment)
-        await content.save()
-        res.status(200).json({message: 'comment added successfully', comment: newComment})
-    } catch(error) {
-        res.status(500).json({message: error.message})
-    }
-}
-
-contentCltr.delete = async (req, res) => {
+contentCltr.comment = async (req, res) => {
     try {
-        const contentId = req.params.contentId;
-        const commentId = req.params.commentId;
-
-        // Find the content item containing the comment
-        const content = await Content.findOne({ _id: contentId, 'comments._id': commentId });
-
-        if (!content) {
-            return res.status(404).json({ message: 'Content not found' });
-        }
-
-        // Use the arrayFilters option to target the specific comment to be removed
-        const updatedContent = await Content.findOneAndUpdate(
-            { _id: contentId },
-            { $pull: { comments: { _id: commentId } } },
-            { new: true, arrayFilters: [{ 'comments._id': commentId }] }
-        )
-
-        res.status(200).json({ updatedContent, message: 'Comment deleted successfully' });
+      const { contentId, body, userId } = req.body;
+  
+      // Validate that contentId is a valid ObjectId (assumes you're using ObjectId)
+    //   if (!Schema.Types.ObjectId.isValid(contentId)) {
+    //     return res.status(400).json({ message: 'Invalid contentId' });
+    //   }
+  
+      const content = await Content.findById(contentId);
+  
+      if (!content) {
+        return res.status(404).json({ message: 'Content not found' });
+      }
+  
+      const newComment = {
+        body,
+        userId,
+        postId: contentId,
+      };
+  
+      content.comments.push(newComment);
+      await content.save();
+  
+      res.status(200).json({ message: 'Comment added successfully', comment: newComment });
     } catch (error) {
-        res.status(404).json({ message: 'Server error', error: error.message });
+      console.error('Error adding comment:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-};
+  };
+  
+  
 
+  contentCltr.delete = async (req, res) => {
+    try {
+      const contentId = req.params.contentId;
+      const commentId = req.params.commentId;
+  
+      // Find the content item containing the comment
+      const content = await Content.findOne({ _id: contentId, 'comments._id': commentId });
+  
+      if (!content) {
+        return res.status(404).json({ message: 'Content not found' });
+      }
+  
+      // Use arrayFilters to target the specific comment to be removed
+      const updatedContent = await Content.findOneAndUpdate(
+        { _id: contentId },
+        { $pull: { comments: { _id: commentId } } },
+        { new: true }
+      );
+  
+      res.status(200).json({ updatedContent, message: 'Comment deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  
+  
 
 module.exports = contentCltr
