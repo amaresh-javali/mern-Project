@@ -54,7 +54,7 @@ usersCtrl.login = async (req, res) => {
 usersCtrl.account = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
-        res.json(pick(user, ['_id', 'username', 'email']));
+        res.json(pick(user, ['_id', 'username', 'email', 'role']));
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
