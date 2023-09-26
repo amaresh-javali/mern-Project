@@ -52,8 +52,9 @@ app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
 
 //creator routes
-app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create)
-app.get('/api/creator', authenticateUser,creatorCltr.show);
+app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
+app.get('/api/creator', authenticateUser, creatorCltr.showOne);
+app.get('/api/creators', authenticateUser, creatorCltr.show);
 app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
 app.post('/api/creator/follow',creatorCltr.followers)
 app.post('/api/creator/unfollow', creatorCltr.unFollow)

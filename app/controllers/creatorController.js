@@ -49,6 +49,27 @@ creatorCltr.show = async (req, res) => {
     }
 }
 
+creatorCltr.showOne = async (req, res) =>
+{
+    try
+    {
+        const id = req.user._id;
+        const tempDoc = await Creator.findOne({"userId": id}).populate('userId');
+        if(tempDoc.bio)
+        {
+            res.json(tempDoc)
+        }
+        else
+        {
+            res.status(404).json('Error! Please try later!');
+        }
+    }
+    catch(err)
+    {
+        res.status(400).json(err.message);
+    }
+}
+
 creatorCltr.update = async (req, res) => {
     console.log('hi');
     try {
