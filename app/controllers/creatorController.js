@@ -54,7 +54,7 @@ creatorCltr.showOne = async (req, res) =>
     try
     {
         const id = req.user._id;
-        const tempDoc = await Creator.findOne({"userId": id}).populate('userId');
+        const tempDoc = await Creator.findOne({"userId": id}).populate([{path: 'userId', select: 'username email'}]);
         if(tempDoc.bio)
         {
             res.json(tempDoc)
