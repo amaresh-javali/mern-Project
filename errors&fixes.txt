@@ -1,2 +1,3 @@
 1.)While registering of users, We can register multiple users using the same email-id. 
 2.)Same user can create multiple creator accounts. This should not happen. 
+3.)Work on saving the Image of Creator in the dB.
