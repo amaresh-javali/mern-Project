@@ -46,6 +46,7 @@ const upload = multer({
 
 // Your existing routes and middleware definitions
 
+//Basic API calls.
 app.post('/api/users/register', usersCltr.register);
 app.post('/api/users/login', usersCltr.login);
 app.get('/api/users/account', authenticateUser, usersCltr.account);
@@ -61,17 +62,13 @@ app.post('/api/creator/unfollow', creatorCltr.unFollow)
 app.delete('/api/creator/:id', authenticateUser, creatorCltr.delete);
 
 // content api routes
-
 app.post('/api/content/create',upload.single('fileType'), authenticateUser,contentCltr.create)
 app.get('/api/content', contentCltr.showAll)
-
 app.put('/api/content/:id', authenticateUser,contentCltr.update)
 app.delete('/api/content/:id',authenticateUser,contentCltr.delete)
 app.post('/api/post/like', authenticateUser, contentCltr.addLike)
 app.post('/api/post/unlike', authenticateUser, contentCltr.removeLike)
-
 app.post('/api/comments', authenticateUser, contentCltr.comment)
-// app.delete('/api/comments', contentCltr.delete);
 app.delete('/api/comments/:contentId/:commentId',authenticateUser, contentCltr.delete);
 
 // Subscription plans
@@ -80,7 +77,6 @@ app.put('/api/subscription/update/:id', authenticateUser, subscriptionCltr.updat
 app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.delete)
 
 //subscribers 
-
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
 app.delete('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)
 

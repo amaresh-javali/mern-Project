@@ -1,20 +1,40 @@
 const SubscriptionPlan = require('../models/subscriptionPlanModel')
-// const Creator = require('../models/creatorModel')
+const Creator = require('../models/creatorModel')
 
-const subscriptionCltr = {}
+const subscriptionCltr = {};
+
 //
 subscriptionCltr.create = async(req, res) =>{
     try{
-        const body = req.body
-        const subscriptionPlan = new SubscriptionPlan(body)
+        const body = req.body;
 
-        const savedSubscriptionPlan = await subscriptionPlan.save()
-        res.status(200).json(savedSubscriptionPlan)
-    }catch(e) {
-        res.status(401).json({e: 'error occured while creating Plan'})
-
+        const valid = await Creator.findOne({_id: body.creatorId});
+        const count = await SubscriptionPlan.find({creatorId: body.creatorId});
+        
+        if(valid)
+        {
+            if(count.length < 2)
+            {
+                const subscriptionPlan = new SubscriptionPlan(body)
+                const savedSubscriptionPlan = await subscriptionPlan.save()
+                res.status(200).json(savedSubscriptionPlan);
+            }
+            else 
+            {
+                res.json('You have already created two plans. Either Update existing plans or delete to add more.');
+            }
+        }
+        else
+        {
+            res.json('You are not a creator ! Become one, then add plans.');
+        }
+    }
+    catch(e) 
+    {
+        res.status(401).json(e);
     }
 }
+
 //get all subScriptionPlans 
 
 // subscriptionCltr.all = async (req, res) =>{
@@ -69,19 +89,6 @@ subscriptionCltr.delete = async (req, res) => {
     } catch (e) {
         res.json(e.message)
     }
-    //  try{
-    //     const id = req.params.id
-    //     const plan = await SubscriptionPlan.findByIdAndDelete(id)
-    //     if(plan) {
-    //         res.json(plan)
-    //     } else {
-    //         res.status(404).json({})
-    //     }
-    //  } catch(e) {
-    //     res.json(e.message)
-    //  }
-
-
 };
 
 
