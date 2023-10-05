@@ -6,18 +6,16 @@ const creatorCltr = {};
 creatorCltr.create = async (req, res) => {
     try {
         const body = req.body;
-        console.log('Request Body:', body);
         const id = req.user._id;
         //const image = req.file;
-        console.log(id);
         body.userId = id; 
 
         const filter = { _id: id };
         // Find the user by ID and update their role to 'creator'
         const updatedUser = await User.findOneAndUpdate(filter, { role: 'creator' }, { new: true });
-        console.log(updatedUser, "updatedUser")
        
-        if (!updatedUser) {
+        if (!updatedUser) 
+        {
             return res.status(404).json({ error: 'User not found' });
         }
 

@@ -78,6 +78,7 @@ app.put('/api/subscription/update/:id', authenticateUser, subscriptionCltr.updat
 app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.delete)
 
 //subscribers 
+app.get('/api/subscribers', authenticateUser, subscribersCltr.getSubscribers);
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
 app.delete('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)
 
