@@ -3,7 +3,7 @@ const Creator = require('../models/creatorModel')
 
 const subscriptionCltr = {};
 
-//
+//Creating subscriptions.
 subscriptionCltr.create = async(req, res) =>{
     try{
         const body = req.body;
@@ -13,7 +13,7 @@ subscriptionCltr.create = async(req, res) =>{
         
         if(valid)
         {
-            if(count.length < 2)
+            if(count.length === 0)
             {
                 const subscriptionPlan = new SubscriptionPlan(body)
                 const savedSubscriptionPlan = await subscriptionPlan.save()
@@ -21,7 +21,7 @@ subscriptionCltr.create = async(req, res) =>{
             }
             else 
             {
-                res.json('You have already created two plans. Either Update existing plans or delete to add more.');
+                res.json('You have already created a plan. You can either update existing plan or delete it.');
             }
         }
         else
@@ -35,17 +35,24 @@ subscriptionCltr.create = async(req, res) =>{
     }
 }
 
-//get all subScriptionPlans 
+//Get particular users' subscription plans.
+subscriptionCltr.showPlan = async (request, response)=>
+{
+    try
+    {
+        const id = request.user._id; 
+        const userTemp = await Creator.findOne({userId: id});
+        const creatorId = userTemp._id
+        const subscribePlanTemp = await SubscriptionPlan.findOne({creatorId: creatorId});
+        response.json(subscribePlanTemp);
+    }
+    catch(err)
+    {
+        response.status(400).json(err.message);
+    }
+}
 
-// subscriptionCltr.all = async (req, res) =>{
-//     try{
-//         const  subscriptionPlans = await SubscriptionPlan.find()
-//         res.status(200).json(subscriptionPlans)
-//     } catch(e) {
-//         res.status(401).json({e: error.message})
-//     }
-// }
-
+//Update existing subscription plans.
 subscriptionCltr.update = async(req, res) =>{
     try{
         const { name, amount } = req.body
@@ -70,6 +77,7 @@ subscriptionCltr.update = async(req, res) =>{
     }
 }
 
+//Delete existing plans. 
 subscriptionCltr.delete = async (req, res) => {
     try {
         const id = req.params.id; // Retrieve subscriptionPlanId from URL parameters

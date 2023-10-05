@@ -72,7 +72,8 @@ app.post('/api/comments', authenticateUser, contentCltr.comment)
 app.delete('/api/comments/:contentId/:commentId',authenticateUser, contentCltr.delete);
 
 // Subscription plans
-app.post('/api/subscribePlans', authenticateUser, subscriptionCltr.create)
+app.post('/api/subscribePlans', authenticateUser, subscriptionCltr.create);
+app.get('/api/subscriptionPlans', authenticateUser, subscriptionCltr.showPlan);
 app.put('/api/subscription/update/:id', authenticateUser, subscriptionCltr.update)
 app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.delete)
 
