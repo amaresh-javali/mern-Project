@@ -56,7 +56,8 @@ paymentController.checkout = async (request, response)=>
             const newPaymentDoc = await newPaymentStatus.save(); 
         }
 
-        //Check the logic of this for pending payments. 
+        //Check the logic of this & for pending payments. 
+        //I need to check if the user has pending payments. Then proceed. 
         if(check)
         {
             const session = await stripe.checkout.sessions.create({
