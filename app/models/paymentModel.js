@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const {Schema} = mongoose;
 
 const paymentSchema = new mongoose.Schema({
     creatorId: {
@@ -27,7 +28,8 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        required: true
+        required: true, 
+        default: 'card'
     }
 });
 

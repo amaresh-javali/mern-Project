@@ -1,11 +1,10 @@
-const Subscribers = require('../models/subscribersModel')
-const User = require('../models/userModel');
+const Subscribers = require('../models/subscribersModel');
 const Creator = require('../models/creatorModel');
 // const Creator = require ('../models/creatorModel')
 
 const subscribersCltr = {}
 
-//get subscribers of a particular creator. 
+//get subscribers of a particular creator. Work.
 subscribersCltr.getSubscribers = async (request, response)=>
 {
 	try
@@ -21,21 +20,55 @@ subscribersCltr.getSubscribers = async (request, response)=>
 	}
 }
 
-//to subscribe to a creator. 
-subscribersCltr.subscribe = async(req, res) =>
-{
-    try
+//to subscribe to a creator. Done, don't change un-till discussed.
+subscribersCltr.subscribe = async (request, response) => {
+    const { creatorId, planId, userId } = request.body;
+
+    try 
 	{
-        //we need creatorID, & his planID. Then we add the user who wants to subscribe. This will be updated after the payment if done. This is the right way to handle it. 
-		const temp = await Subscribers.findOne({creatorId: creatorId});
-    }
-	catch(err) 
+        const temp = await Subscribers.findOne({ creatorId: creatorId, planId: planId });
+
+        if(temp) 
+		{
+            const check = temp.subscribers.some((subs) => 
+			{
+                return subs.userId.equals(userId);
+            });
+
+            if(check) 
+			{
+                response.json('Already subscribed!');
+            } 
+			else 
+			{
+                const tempDoc = await Subscribers.findOneAndUpdate(
+                    { creatorId: creatorId, planId: planId },
+                    { $push: { subscribers: { userId: userId } } },
+                    { new: true, runValidators: true }
+                );
+                response.json(tempDoc);
+            }
+        } 
+		else 
+		{
+			const subscribersData = {
+                creatorId: creatorId,
+                planId: planId,
+                subscribers: [{ userId: userId }],
+            };
+
+            const newSubscribers = new Subscribers(subscribersData);
+            const tempDoc = await newSubscribers.save();
+            response.json(tempDoc);
+        }
+    } 
+	catch (err) 
 	{
-        res.status(404).json(err)
+        response.status(500).json(err.message);
     }
 };
 
-//to un-subscribe from a user. 
+//to un-subscribe from a user. Work.
 subscribersCltr.unSubscribe = async (req, res) => {
   const subscriberId = req.body.id;
   const userId = req.body.userId; // Assuming req.body.userId contains a valid user ID
