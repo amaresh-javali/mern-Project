@@ -12,6 +12,8 @@ const creatorCltr = require('./app/controllers/creatorController')
 const contentCltr = require('./app/controllers/contentController')
 const subscriptionCltr = require('./app/controllers/subscriptionPlanController')
 const subscribersCltr = require('./app/controllers/subscribersController')
+const paymentController = require('./app/helpers/payment-integration');
+const paymentStatusController = require('./app/controllers/paymentStatusController');
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
 const upload = require('./upload')
@@ -56,7 +58,11 @@ app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
 
 //creator routes
+
 // app.post('/api/creator', upload.single('fileType'), authenticateUser, creatorCltr.create);
+
+app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
+//Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
 app.get('/api/creators', authenticateUser, creatorCltr.show);
 app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
@@ -76,6 +82,7 @@ app.delete('/api/comments/:contentId/:commentId', authenticateUser, contentCltr.
 
 // Subscription plans
 app.post('/api/subscribePlans', authenticateUser, subscriptionCltr.create);
+//This will also need changes. 
 app.get('/api/subscriptionPlans', authenticateUser, subscriptionCltr.showPlan);
 app.put('/api/subscription/update/:id', authenticateUser, subscriptionCltr.update)
 app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.delete)
@@ -83,8 +90,15 @@ app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.del
 //subscribers 
 app.get('/api/subscribers', authenticateUser, subscribersCltr.getSubscribers);
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
-app.delete('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)
+app.put('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)
 
+//payment http methods.
+app.get('/payment-get-data', paymentController.getData);
+app.post('/payment-checkout', authenticateUser, paymentController.checkout);
+app.get('/payment-session-info', authenticateUser, paymentController.getSession);
+
+//Payment-Status APIs.
+app.put('/payment-update-status', authenticateUser, paymentStatusController.updateStatus);
 
 app.listen(PORT, () => {
   console.log('server is running on port', PORT);
