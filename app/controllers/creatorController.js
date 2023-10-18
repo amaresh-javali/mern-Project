@@ -100,30 +100,7 @@ creatorCltr.delete = async (req, res) => {
     }
 }
 
-// creatorCltr.followers = async (req, res) => {
-//     try {
-//         const user = await User.findById(req.body.userId)
-//         const creator = await Creator.findById(req.body.creatorId)
-//         console.log(user)
-//         console.log(creator)
 
-//         // if(!user || !creator) {
-//         //     res.json({msg: 'User or Creator not found'})
-//         // }
-//         // if(!creator.followers.includes(user.id)){
-//         //     creator.followers.push({userId:user.id})
-//         //     creator.save()
-//         //     res.status(200).json({msg: 'User started following successfully'})
-//         // } else {
-//         //     res.json({msg: 'User is already following'})
-//         // }
-//         creator.followers.push({ userId: user._id })
-//         await creator.save()
-//         res.json(creator)
-//     } catch (e) {
-//         res.json(e)
-//     }
-// }
 
 creatorCltr.followers = async (req, res) => {
     try {
@@ -132,7 +109,6 @@ creatorCltr.followers = async (req, res) => {
         if (creator.followers.some(follower => follower.userId.equals(user._id))) {
             return res.status(401).json({ msg: 'User is already following' });
         }
-        // Add the follower only if not already following
         creator.followers.push({ userId: user._id });
         await creator.save();
         
@@ -151,15 +127,12 @@ creatorCltr.unFollow = async (req, res) => {
         )
         if (isFollowing) {
             console.log('User is following');
-            // Remove the user from the followers list
             creator.followers = creator.followers.filter(
                 follower => !follower.userId.equals(user._id)
             )
             await creator.save();
-            // console.log('User removed from followers');
             return res.status(200).json({ msg: 'User unfollowed successfully' });
         } else {
-            // console.log('User was not following');
             return res.status(404).json({ msg: 'User was not following' });
         }
     } catch (e) {
