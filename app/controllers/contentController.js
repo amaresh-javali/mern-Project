@@ -30,7 +30,7 @@ contentCltr.showAll = async (req, res) => {
     // console.log(contents)
     res.status(200).json(contents)
   } catch (error) {
-    res.status(400).json({ error: 'Failed to retrive content', message: error.message })
+    res.status(400).json({ error: 'Failed to retrieve content', message: error.message })
   }
 }
 
@@ -59,6 +59,28 @@ contentCltr.contentDelete = async (req, res) => {
     res.json({ deleteContent, message: 'content deleted successfully' })
   } catch (e) {
     console.log(e.message)
+  }
+}
+
+contentCltr.deleteContent = async (request, response)=>
+{
+  try
+  {
+    contentId = request.params.id; 
+    const deleteDoc = await Content.findByIdAndDelete(contentId);
+    if(!deleteDoc)
+    {
+      response.status(500).json('There is no such Content!');
+    }
+    else
+    {
+      const remainingDocs = await Content.find();
+      response.json(remainingDocs);
+    }
+  }
+  catch(err)
+  {
+    response.status(404).json('Error while Deleting the Content!');
   }
 }
 

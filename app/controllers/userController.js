@@ -10,18 +10,35 @@ usersCtrl.register = async (req, res) => {
     try {
         const body = pick(req.body, ['username', 'email', 'password']);
 
-        if (!validator.isStrongPassword(body.password)) {
+        if (!validator.isStrongPassword(body.password)) 
+        {
             return res.status(400).json({ error: 'Password requirements not met' });
         }
-        const user = new User(body)
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(user.password, salt);
-        user.password = hashedPassword;
 
-        const userDoc = await user.save();
-        res.json(userDoc);
-    } catch (error) {
-        console.error(error);
+        const check = await User.findOne({email: body.email});
+
+        if(body.email === 'rishav@gmail.com')
+        {
+            body.role = 'admin';
+        };
+
+        if(!check)
+        {
+            const user = new User(body)
+            const salt = await bcrypt.genSalt();
+            const hashedPassword = await bcrypt.hash(user.password, salt);
+            user.password = hashedPassword;
+
+            const userDoc = await user.save();
+            res.json(userDoc);
+        }
+        else
+        {
+            res.json({error: 'This Email is already registered!'});
+        }
+    } 
+    catch (error) 
+    {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -72,5 +89,27 @@ usersCtrl.getAllUsers = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+usersCtrl.delete = async (request, response)=>
+{
+    try
+    {
+        const deleteId = request.params.id; 
+        
+        const deleteDoc = await User.findByIdAndDelete(deleteId);
+        if(!deleteDoc)
+        {
+            response.status(404).json('No Such Document to delete !');
+        }
+        
+        const remainDocs = await User.find();
+        response.json(remainDocs);
+    }
+    catch(err)
+    {
+        console.log(err.message);
+        response.json(err.message);
+    }
+}
 
 module.exports = usersCtrl;

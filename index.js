@@ -16,6 +16,7 @@ const paymentController = require('./app/helpers/payment-integration');
 const paymentStatusController = require('./app/controllers/paymentStatusController');
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
+
 const upload = require('./upload')
 const app = express();
 app.use(express.json());
@@ -56,6 +57,7 @@ app.post('/api/users/register', usersCltr.register);
 app.post('/api/users/login', usersCltr.login);
 app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
+app.delete('/api/user/:id', authenticateUser, authorization, usersCltr.delete);
 
 //creator routes
 
@@ -64,17 +66,19 @@ app.get('/api/users', usersCltr.getAllUsers);
 app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
 //Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
-app.get('/api/creators', authenticateUser, creatorCltr.show);
+app.get('/api/creators', authenticateUser, authorization, creatorCltr.show);
 app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
 app.post('/api/creator/follow', creatorCltr.followers)
 app.post('/api/creator/unfollow', creatorCltr.unFollow)
-app.delete('/api/creator/:id', authenticateUser, creatorCltr.delete);
+app.delete('/api/creator/:id', authenticateUser, authorization, creatorCltr.delete);
 
 // content api routes
 app.post('/api/content/create', upload.single('fileType'), authenticateUser, contentCltr.create)
 app.get('/api/content', contentCltr.showAll)
 app.put('/api/content/:id', authenticateUser, contentCltr.update)
 app.delete('/api/content/:id', authenticateUser, contentCltr.contentDelete)
+app.delete('/content-delete-admin/:id', authenticateUser, authorization, contentCltr.deleteContent);
+//make a delete content function for admin purpose.
 app.put('/api/post/like', authenticateUser, contentCltr.addLike)
 app.put('/api/post/unlike', authenticateUser, contentCltr.removeLike)
 app.post('/api/comments', authenticateUser, contentCltr.comment)
