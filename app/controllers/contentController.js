@@ -5,15 +5,16 @@ const contentCltr = {}
 
 // create a content
 contentCltr.create = async (req, res) => {
-  console.log('hi')
   try {
-    const { title, id, body, type } = req.body
+    const { title, creatorId, body, type, isVisible } = req.body;
     const fileType = req?.file
-    const createContent = new Content({ title, body, creatorId: id, type, fileType: fileType.location })
-    console.log(createContent, 'createContent')
+
+    const createContent = new Content({ title, body, creatorId: creatorId, isVisible, type, fileType: fileType.location });
     const postContent = await createContent.save()
-    res.json(postContent)
-  } catch (error) {
+    res.json(postContent);
+  } 
+  catch (error) 
+  {
     res.json(error)
   }
 }

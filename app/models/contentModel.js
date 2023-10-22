@@ -57,7 +57,7 @@ const contentSchema = new Schema({
         required:true
     }
     
-}, {timestamp: true});
+}, {timestamps: true});
 
 const Content = mongoose.model('Content', contentSchema);
 
