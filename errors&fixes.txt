@@ -1,5 +1,5 @@
-1.)While registering of users, We can register multiple users using the same email-id. PENDING
-2.)Same user can create multiple creator accounts. This should not happen.  PENDING
-3.)Work on saving the Image of Creator in the dB.   PENDING
-4.)Check the logic on payment Subscription. PENDING.
+1.)While registering of users, We can register multiple users using the same email-id. DONE. 
+2.)Same user can create multiple creator accounts. This should not happen.  DONE.
+3.)Work on saving the Image of Creator in the dB.   PENDING.
+4.)Check the logic on payment Subscription. DONE.
 

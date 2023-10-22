@@ -11,35 +11,43 @@ creatorCltr.create = async (req, res) => {
         body.userId = id; 
 
         const filter = { _id: id };
-        // Find the user by ID and update their role to 'creator'
-        const updatedUser = await User.findOneAndUpdate(filter, { role: 'creator' }, { new: true });
-       
-        if (!updatedUser) 
+        // Find the user by ID and update their role to 'creator';
+        const check = await User.findById(id);
+
+        if(check.role === 'user')
         {
-            return res.status(404).json({ error: 'User not found' });
+            const updatedUser = await User.findOneAndUpdate(filter, { role: 'creator' }, { new: true });
+       
+            if (!updatedUser) 
+            {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Create a new Creator instance with the provided data
+            const newCreator = new Creator({
+                ...body,
+                //image: image.filename // Assuming you store the filename in the 'image' field
+            });
+
+            // Save the new creator to the database
+            const creatorDoc = await newCreator.save();
+
+            res.status(200).json(creatorDoc);
         }
-
-        // Create a new Creator instance with the provided data
-        const newCreator = new Creator({
-            ...body,
-            //image: image.filename // Assuming you store the filename in the 'image' field
-        });
-
-        // Save the new creator to the database
-        const creatorDoc = await newCreator.save();
-
-        res.status(200).json(creatorDoc);
+        else
+        {
+            res.json('You already are a creator!');
+        }
     }
     catch (error) 
     {
-        console.error(error);
         res.status(400).json('Failed to create your account');
     }
 };
 
 creatorCltr.show = async (req, res) => {
     try {
-        const creators = await Creator.find()
+        const creators = await Creator.find().populate('userId')
         res.status(200).json(creators)
     } catch (error) {
         console.error(error)
@@ -90,11 +98,21 @@ creatorCltr.update = async (req, res) => {
 
 creatorCltr.delete = async (req, res) => {
     try {
-        const deleteCreator = await Creator.findByIdAndDelete(req.params.id)
+        const deleteCreator = await Creator.findByIdAndDelete(req.params.id);
+        
         if (deleteCreator) {
-            return res.json({ message: 'creator deleted successfully' })
+            const deleteUser = await User.findByIdAndDelete(deleteCreator.userId);
+            const remainingCreatorDoc = await Creator.find().populate('userId');
+            const remainingUserDoc = await User.find();
+            if(remainingCreatorDoc && remainingUserDoc)
+            {
+                res.json({creators: remainingCreatorDoc, users: remainingUserDoc});
+            }
         }
-        res.status(404).json({ error: 'creator not found' })
+        else
+        {   
+            res.status(404).json({ error: 'creator not found' })
+        }
     } catch (err) {
         res.json({ err: 'Failed to delete creator' })
     }

@@ -14,9 +14,11 @@ paymentController.getData = async (request, response)=>
     try
     {
         const contentTemp = await Content.findById(new Object(contentId));
+
         if(contentTemp)
-        {
+        {   
             const planTemp = await SubscriptionPlan.findOne({creatorId: contentTemp.creatorId});
+
             if(planTemp)
             {
                 const resTemp = {
@@ -25,6 +27,14 @@ paymentController.getData = async (request, response)=>
                 };
                 response.json(resTemp);
             }
+            else
+            {
+                response.json('Error while finding the Plan!');
+            }
+        }
+        else
+        {
+            response.json("Error while finding the Plan!");
         }
     }
     catch(err)
@@ -54,11 +64,40 @@ paymentController.checkout = async (request, response)=>
         if(!check)
         {
             const newPaymentDoc = await newPaymentStatus.save(); 
+            //Check the logic of this & for pending payments. 
+            //I need to check if the user has pending payments. Then proceed. 
+            if(newPaymentDoc && newPaymentDoc.status === 'pending')
+            {
+                const session = await stripe.checkout.sessions.create({
+                    payment_method_types: ['card'], 
+                    line_items: [
+                        {
+                            price_data: {
+                                currency: 'inr', 
+                                product_data: {
+                                    name: storeItem.name
+                                }, 
+                                unit_amount: storeItem.amount * 100
+                            }, 
+                            quantity: 1
+                        },
+                    ], 
+                    mode: 'payment', 
+                    success_url: `${process.env.SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
+                    cancel_url: `${process.env.CANCEL_URL}?session_id={CHECKOUT_SESSION_ID}`,
+                    metadata: {
+                        userId: data.userId,
+                        planId: storeItem._id, 
+                        planName: storeItem.name,
+                        planAmount: storeItem.amount, 
+                        creatorId: storeItem.creatorId
+                    },
+                });
+        
+                response.json(session);
+            }
         }
-
-        //Check the logic of this & for pending payments. 
-        //I need to check if the user has pending payments. Then proceed. 
-        if(check)
+        else if(check && check.status==='failed')
         {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'], 
@@ -88,9 +127,9 @@ paymentController.checkout = async (request, response)=>
     
             response.json(session);
         }
-        else
+        else if(check && check.status === 'completed')
         {
-            response.json('Pending Status.');
+            response.json('You are already subscribed !');
         }
     }
     catch(err)
