@@ -20,6 +20,28 @@ subscribersCltr.getSubscribers = async (request, response)=>
 	}
 }
 
+subscribersCltr.specificSubscribers = async (request, response)=>
+{
+  try
+  {
+    const {id} = request.params;
+    const subTemp = await Subscribers.findOne({creatorId: id})
+    if(subTemp)
+    {
+      response.json(subTemp);
+    }
+    else
+    {
+      response.status(500).json('No Subscribers Plan Found!');
+    }
+  }
+  catch(err)
+  {
+    console.log(err.message);
+    response.status(404).json('Error Retrieving Subscribers!');
+  }
+}
+
 //to subscribe to a creator. Done, don't change un-till discussed.
 subscribersCltr.subscribe = async (request, response) => {
     const { creatorId, planId, userId } = request.body;
