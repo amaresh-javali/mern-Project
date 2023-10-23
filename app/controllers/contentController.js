@@ -1,15 +1,17 @@
 const { Schema } = require('mongoose')
 const Content = require('../models/contentModel')
+const Creator = require('../models/creatorModel');
 // const User = require('../models/userModel')
 const contentCltr = {}
 
 // create a content
 contentCltr.create = async (req, res) => {
   try {
-    const { title, creatorId, body, type, isVisible } = req.body;
+    const { title, creatorId, body, type, forSubscribers} = req.body;
     const fileType = req?.file
 
-    const createContent = new Content({ title, body, creatorId: creatorId, isVisible, type, fileType: fileType.location });
+    const createContent = new Content({ title, body, creatorId: creatorId, isVisible: forSubscribers, type, fileType: fileType.location });
+
     const postContent = await createContent.save()
     res.json(postContent);
   } 
@@ -23,15 +25,40 @@ contentCltr.create = async (req, res) => {
 // get all content
 contentCltr.showAll = async (req, res) => {
   try {
-    const contents = await Content.find({}).populate({
-      path: "creatorId",
-      model: "User",
-      select: 'username email'
-    });
-    // console.log(contents)
+    const contents = await Content.find({})
+
     res.status(200).json(contents)
   } catch (error) {
     res.status(400).json({ error: 'Failed to retrieve content', message: error.message })
+  }
+}
+
+contentCltr.showOne = async (request, response)=>
+{
+  try
+  {
+    const {id} = request.params
+    const tempDoc = await Content.findById(id);
+    if(tempDoc)
+    {
+      const creatorTemp = await Creator.findOne({_id: tempDoc.creatorId}).populate('userId');
+      if(creatorTemp)
+      {
+        const tempObj = {
+          creator: creatorTemp,
+          content: tempDoc
+        }
+        response.json(tempObj);
+      }
+    }
+    else
+    {
+      response.json('No Such Content Found !');
+    }
+  }
+  catch(err)
+  {
+    response.status(404).json('Failed to Retrieve Content');
   }
 }
 
