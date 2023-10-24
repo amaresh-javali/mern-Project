@@ -12,7 +12,15 @@ subscribersCltr.getSubscribers = async (request, response)=>
 		const id = request.user._id; 
 		const temp = await Creator.findOne({userId: id});
 		const resultTemp = await Subscribers.findOne({creatorId:temp._id});
-		response.json(resultTemp);
+    if(resultTemp)
+    {
+      response.json(resultTemp);
+    }
+    else
+    {
+      response.status(500).json('No Subscribers Found !');
+    }
+		
 	}
 	catch(err)
 	{
