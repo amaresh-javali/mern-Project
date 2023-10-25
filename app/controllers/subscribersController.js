@@ -1,5 +1,6 @@
 const Subscribers = require('../models/subscribersModel');
 const Creator = require('../models/creatorModel');
+const SubscriptionPlan = require('../models/subscriptionPlanModel');
 // const Creator = require ('../models/creatorModel')
 
 const subscribersCltr = {}
@@ -12,15 +13,22 @@ subscribersCltr.getSubscribers = async (request, response)=>
 		const id = request.user._id; 
 		const temp = await Creator.findOne({userId: id});
 		const resultTemp = await Subscribers.findOne({creatorId:temp._id});
+    if (!resultTemp) 
+    {
+      const planId = await SubscriptionPlan.findOne({creatorId: temp._id});
+      const newSubscribers = new Subscribers({
+        creatorId: temp._id,
+        planId: planId._id
+      });
+
+      resultTemp = await newSubscribers.save();
+      response.json(resultTemp);
+    }
+    
     if(resultTemp)
     {
       response.json(resultTemp);
     }
-    else
-    {
-      response.status(500).json('No Subscribers Found !');
-    }
-		
 	}
 	catch(err)
 	{
