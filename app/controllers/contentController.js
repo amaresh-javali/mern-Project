@@ -114,9 +114,8 @@ contentCltr.deleteContent = async (request, response)=>
 
 contentCltr.addLike = async (req, res) => {
   try {
-    console.log(req.body, 'body')
-    const contentId = req.body.postId
-    const userId = req.user._id
+    const contentId = req.body.postId;
+    const userId = req.body.userId;
     const content = await Content.findById(contentId)
     if (!content) {
       return res.status(404).json({ message: 'Content not found' })
@@ -134,7 +133,7 @@ contentCltr.addLike = async (req, res) => {
 }
 contentCltr.removeLike = async (req, res) => {
   const { postId } = req.body;
-  const userId = req.user._id
+  const userId = req.body.userId;
   try {
     // Find the post by postId
     const post = await Content.findByIdAndUpdate(postId, { $pull: { likes: { userId: userId } } }, { new: true });
@@ -146,22 +145,21 @@ contentCltr.removeLike = async (req, res) => {
 }
 
 contentCltr.comment = async (req, res) => {
-  console.log(req.body)
   try {
     const { contentId, body } = req.body;
-    const userId = req.user._id
+    const userId = req.body.userId; 
     const content = await Content.findOne({ _id: contentId });
-    console.log(content, ' content')
+
     const newComment = {
       body,
       userId,
       postId: contentId,
     };
-    console.log(newComment, 'new comment')
+
     content.comments.push(newComment);
     const comDoc = await content.save();
-    console.log(comDoc)
-    res.status(200).json({ message: 'Comment added successfully', comment: newComment });
+
+    res.status(200).json({ message: 'Comment added successfully', content: comDoc});
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -185,7 +183,7 @@ contentCltr.delete = async (req, res) => {
 
     res.status(200).json({ updatedContent, message: 'Comment deleted successfully' });
   } catch (error) {
-    console.log('hi dis is catch block')
+
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 }
