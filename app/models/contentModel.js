@@ -15,6 +15,10 @@ const contentSchema = new Schema({
         type: String,
         required: true
     },
+    category: {
+        type: String, 
+        required: true
+    },
     creatorId: {
         type: Schema.Types.ObjectId,
         ref: 'Creator',
@@ -48,10 +52,6 @@ const contentSchema = new Schema({
             default:true
         }
     ,
-    isDraft: {
-        type: Boolean,
-        default: false
-    },
     fileType:{
         type:String,
         required:true

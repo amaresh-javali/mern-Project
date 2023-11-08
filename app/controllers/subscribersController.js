@@ -18,14 +18,28 @@ subscribersCltr.getSubscribers = async (request, response)=>
     }
     else
     {
-      response.status(500).json('No Subscribers Found !');
+      response.json([]);
     }
-		
 	}
 	catch(err)
 	{
 		response.status(404).json(err);
 	}
+}
+
+subscribersCltr.getNames = async (request, response)=>
+{
+  try
+  {
+    const id = request.user._id; 
+    const temp = await Creator.findOne({userId: id});
+    const result = await Subscribers.findOne({creatorId: temp._id}).populate('subscribers.userId');
+    response.json(result);
+  }
+  catch(err)
+  {
+    response.status(404).json(err);
+  }
 }
 
 subscribersCltr.specificSubscribers = async (request, response)=>
@@ -40,7 +54,7 @@ subscribersCltr.specificSubscribers = async (request, response)=>
     }
     else
     {
-      response.status(500).json('No Subscribers Plan Found!');
+      response.json([]);
     }
   }
   catch(err)

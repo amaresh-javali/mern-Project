@@ -7,10 +7,10 @@ const contentCltr = {}
 // create a content
 contentCltr.create = async (req, res) => {
   try {
-    const { title, creatorId, body, type, forSubscribers} = req.body;
+    const { title, creatorId, body, type, forSubscribers, category} = req.body;
     const fileType = req?.file
 
-    const createContent = new Content({ title, body, creatorId: creatorId, isVisible: forSubscribers, type, fileType: fileType.location });
+    const createContent = new Content({ title, body, category, creatorId: creatorId, isVisible: forSubscribers, type, fileType: fileType.location });
 
     const postContent = await createContent.save()
     res.json(postContent);
@@ -21,15 +21,36 @@ contentCltr.create = async (req, res) => {
   }
 }
 
-
 // get all content
 contentCltr.showAll = async (req, res) => {
   try {
-    const contents = await Content.find({})
-
-    res.status(200).json(contents)
+    const content = await Content.find({}).populate({
+        path: 'creatorId',
+        populate: { path: 'userId' }
+      });
+    res.status(200).json(content)
   } catch (error) {
     res.status(400).json({ error: 'Failed to retrieve content', message: error.message })
+  }
+}
+
+// admin call for all content. 
+contentCltr.allContent = async (request, response)=>
+{
+  try
+  {
+    const contents = await Content.find({}).populate('creatorId');
+    const options = {
+      path: 'creatorId.userId',
+      model: 'User'
+    };
+
+    const populatedContents = await Content.populate(contents, options);
+    response.json(populatedContents);
+  }
+  catch(err)
+  {
+    response.status(400).json('Error while fetching all contents!');
   }
 }
 
@@ -102,8 +123,14 @@ contentCltr.deleteContent = async (request, response)=>
     }
     else
     {
-      const remainingDocs = await Content.find();
-      response.json(remainingDocs);
+      const contents = await Content.find({}).populate('creatorId');
+      const options = {
+        path: 'creatorId.userId',
+        model: 'User'
+      };
+
+      const populatedContents = await Content.populate(contents, options);
+      response.json(populatedContents);
     }
   }
   catch(err)
@@ -163,6 +190,24 @@ contentCltr.comment = async (req, res) => {
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+contentCltr.updateComment = async (request, response)=>
+{
+  try
+  {
+    const {commentId, contentId, body} = request.body; 
+    const tempDoc = await Content.findOne({_id: contentId}); 
+
+    const updateTemp = tempDoc.comments.find((comment)=>comment._id.equals(commentId));
+    updateTemp.body = body; 
+    await tempDoc.save();
+    response.json(tempDoc);
+  }
+  catch(err)
+  {
+    response.status(500).json('Error while updating your comment. Please try again later!');
   }
 }
 
