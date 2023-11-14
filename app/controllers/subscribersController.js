@@ -6,7 +6,7 @@ const subscribersCltr = {}
 
 //get subscribers of a particular creator. Work.
 subscribersCltr.getSubscribers = async (request, response)=>
-{
+{ //New code.
 	try
 	{
 		const id = request.user._id; 
