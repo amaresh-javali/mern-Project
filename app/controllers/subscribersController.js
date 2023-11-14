@@ -1,5 +1,6 @@
 const Subscribers = require('../models/subscribersModel');
 const Creator = require('../models/creatorModel');
+const SubscriptionPlan = require('../models/subscriptionPlanModel');
 // const Creator = require ('../models/creatorModel')
 
 const subscribersCltr = {}
