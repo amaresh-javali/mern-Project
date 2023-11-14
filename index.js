@@ -16,6 +16,8 @@ const paymentController = require('./app/helpers/payment-integration');
 const paymentStatusController = require('./app/controllers/paymentStatusController');
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
+const mailer = require('./app/controllers/nodemailer')
+
 
 const upload = require('./upload')
 const app = express();
@@ -96,6 +98,7 @@ app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.del
 
 //subscribers 
 app.get('/api/subscribers', authenticateUser, subscribersCltr.getSubscribers);
+app.post('/api/allSubscribers', subscribersCltr.getAllSubscribers)
 app.get('/subscribers-name', authenticateUser, subscribersCltr.getNames);
 app.get('/subscribers/:id', authenticateUser, subscribersCltr.specificSubscribers);
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
@@ -108,6 +111,8 @@ app.get('/payment-session-info', authenticateUser, paymentController.getSession)
 
 //Payment-Status APIs.
 app.put('/payment-update-status', authenticateUser, paymentStatusController.updateStatus);
+app.post('/api/nodemailer', mailer.create)
+
 
 app.listen(PORT, () => {
   console.log('server is running on port', PORT);
