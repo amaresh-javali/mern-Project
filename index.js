@@ -75,6 +75,7 @@ app.delete('/api/creator/:id', authenticateUser, authorization, creatorCltr.dele
 // content api routes
 app.post('/api/content/create', upload.single('fileType'), authenticateUser, contentCltr.create)
 app.get('/api/content', contentCltr.showAll);
+app.get('/content-all', authenticateUser, authorization, contentCltr.allContent);
 app.get('/content/:id', authenticateUser, contentCltr.showOne);
 app.put('/api/content/:id', authenticateUser, contentCltr.update)
 app.delete('/api/content/:id', authenticateUser, contentCltr.contentDelete)
@@ -83,6 +84,7 @@ app.delete('/content-delete-admin/:id', authenticateUser, authorization, content
 app.put('/api/post/like', authenticateUser, contentCltr.addLike)
 app.put('/api/post/unlike', authenticateUser, contentCltr.removeLike)
 app.post('/api/comments', authenticateUser, contentCltr.comment)
+app.put('/api/comment', authenticateUser, contentCltr.updateComment);
 app.delete('/api/comments/:contentId/:commentId', authenticateUser, contentCltr.delete);
 
 // Subscription plans
@@ -94,6 +96,7 @@ app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.del
 
 //subscribers 
 app.get('/api/subscribers', authenticateUser, subscribersCltr.getSubscribers);
+app.get('/subscribers-name', authenticateUser, subscribersCltr.getNames);
 app.get('/subscribers/:id', authenticateUser, subscribersCltr.specificSubscribers);
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
 app.put('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)

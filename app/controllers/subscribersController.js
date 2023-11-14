@@ -7,33 +7,40 @@ const subscribersCltr = {}
 
 //get subscribers of a particular creator. Work.
 subscribersCltr.getSubscribers = async (request, response)=>
-{
+{ //New code.
 	try
 	{
 		const id = request.user._id; 
 		const temp = await Creator.findOne({userId: id});
 		const resultTemp = await Subscribers.findOne({creatorId:temp._id});
-    if (!resultTemp) 
-    {
-      const planId = await SubscriptionPlan.findOne({creatorId: temp._id});
-      const newSubscribers = new Subscribers({
-        creatorId: temp._id,
-        planId: planId._id
-      });
-
-      resultTemp = await newSubscribers.save();
-      response.json(resultTemp);
-    }
-    
     if(resultTemp)
     {
       response.json(resultTemp);
+    }
+    else
+    {
+      response.json([]);
     }
 	}
 	catch(err)
 	{
 		response.status(404).json(err);
 	}
+}
+
+subscribersCltr.getNames = async (request, response)=>
+{
+  try
+  {
+    const id = request.user._id; 
+    const temp = await Creator.findOne({userId: id});
+    const result = await Subscribers.findOne({creatorId: temp._id}).populate('subscribers.userId');
+    response.json(result);
+  }
+  catch(err)
+  {
+    response.status(404).json(err);
+  }
 }
 
 subscribersCltr.specificSubscribers = async (request, response)=>
@@ -48,7 +55,7 @@ subscribersCltr.specificSubscribers = async (request, response)=>
     }
     else
     {
-      response.status(500).json('No Subscribers Plan Found!');
+      response.json([]);
     }
   }
   catch(err)

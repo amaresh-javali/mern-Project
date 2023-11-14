@@ -123,13 +123,13 @@ creatorCltr.delete = async (req, res) => {
 creatorCltr.followers = async (req, res) => {
     try {
         const user = await User.findById(req.body.userId);
-        const creator = await Creator.findById(req.body.creatorId);
+        const creator = await Creator.findById(req.body.creatorId).populate('userId');
         if (creator.followers.some(follower => follower.userId.equals(req.body.userId))) {
-            return res.status(403).json('You already follow this creator');
+            return res.status(403).json({msg:'You already follow this creator'});
         }
         creator.followers.push({ userId: req.body.userId });
-        await creator.save();
-        
+        await creator.save()
+
         res.status(200).json(creator);
     } catch (e) {
         res.json(e.message);
@@ -138,7 +138,7 @@ creatorCltr.followers = async (req, res) => {
 creatorCltr.unFollow = async (req, res) => {
     try {
         const user = await User.findById(req.body.userId);
-        const creator = await Creator.findById(req.body.creatorId);
+        const creator = await Creator.findById(req.body.creatorId).populate('userId');
 
         const isFollowing = creator.followers.some(
             follower => follower.userId.equals(req.body.userId)
@@ -150,7 +150,7 @@ creatorCltr.unFollow = async (req, res) => {
             await creator.save();
             return res.status(200).json(creator);
         } else {
-            return res.status(404).json({ msg: 'User was not following' });
+            return res.status(404).json({ msg: 'User was not following'});
         }
     } catch (e) {
         console.log(e.message);

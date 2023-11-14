@@ -49,13 +49,13 @@ usersCtrl.login = async (req, res) => {
         const user = await User.findOne({ email: body.email });
 
         if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.json({ error: 'Invalid credentials' });
         }
 
         const result = await bcrypt.compare(body.password, user.password);
 
         if (!result) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.json({ error: 'Invalid credentials' });
         }
 
         const tokenData = { _id: user._id };
