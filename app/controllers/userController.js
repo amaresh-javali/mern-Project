@@ -8,22 +8,19 @@ const usersCtrl = {};
 
 usersCtrl.register = async (req, res) => {
     try {
-        const body = pick(req.body, ['username', 'email', 'password']);
+        const body = pick(req.body, ['username', 'email', 'password', 'profilePic']);
 
-        if (!validator.isStrongPassword(body.password)) 
-        {
+        if (!validator.isStrongPassword(body.password)) {
             return res.status(400).json({ error: 'Password requirements not met' });
         }
 
-        const check = await User.findOne({email: body.email});
+        const check = await User.findOne({ email: body.email });
 
-        if(body.email === 'rishav@gmail.com')
-        {
+        if (body.email === 'rishav@gmail.com') {
             body.role = 'admin';
         };
 
-        if(!check)
-        {
+        if (!check) {
             const user = new User(body)
             const salt = await bcrypt.genSalt();
             const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -32,13 +29,11 @@ usersCtrl.register = async (req, res) => {
             const userDoc = await user.save();
             res.json(userDoc);
         }
-        else
-        {
-            res.json({error: 'This Email is already registered!'});
+        else {
+            res.json({ error: 'This Email is already registered!' });
         }
-    } 
-    catch (error) 
-    {
+    }
+    catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -58,7 +53,7 @@ usersCtrl.login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const tokenData = { _id: user._id };
+        const tokenData = { _id: user._id, profilePic: user.profilePic };
         const token = jwt.sign(tokenData, process.env.JWT_SECRET);
 
         res.json({ token: `Bearer ${token}` });
@@ -81,7 +76,7 @@ usersCtrl.account = async (req, res) => {
 usersCtrl.getAllUsers = async (req, res) => {
     try {
         // Retrieve all users from the database
-        const allUsers = await User.find({users: req.params.id});
+        const allUsers = await User.find({ users: req.params.id });
 
         res.json(allUsers);
     } catch (error) {
@@ -90,23 +85,19 @@ usersCtrl.getAllUsers = async (req, res) => {
     }
 };
 
-usersCtrl.delete = async (request, response)=>
-{
-    try
-    {
-        const deleteId = request.params.id; 
-        
+usersCtrl.delete = async (request, response) => {
+    try {
+        const deleteId = request.params.id;
+
         const deleteDoc = await User.findByIdAndDelete(deleteId);
-        if(!deleteDoc)
-        {
+        if (!deleteDoc) {
             response.status(404).json('No Such Document to delete !');
         }
-        
+
         const remainDocs = await User.find();
         response.json(remainDocs);
     }
-    catch(err)
-    {
+    catch (err) {
         console.log(err.message);
         response.json(err.message);
     }

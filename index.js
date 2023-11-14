@@ -14,6 +14,7 @@ const subscriptionCltr = require('./app/controllers/subscriptionPlanController')
 const subscribersCltr = require('./app/controllers/subscribersController')
 const paymentController = require('./app/helpers/payment-integration');
 const paymentStatusController = require('./app/controllers/paymentStatusController');
+const mailer = require('./app/controllers/nodemailer')
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
 
@@ -63,7 +64,7 @@ app.delete('/api/user/:id', authenticateUser, authorization, usersCltr.delete);
 
 // app.post('/api/creator', upload.single('fileType'), authenticateUser, creatorCltr.create);
 
-app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
+app.post('/api/creator', authenticateUser, creatorCltr.create);
 //Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
 app.get('/api/creators', authenticateUser, authorization, creatorCltr.show);
@@ -93,7 +94,8 @@ app.put('/api/subscription/update/:id', authenticateUser, subscriptionCltr.updat
 app.delete('/api/subscription-plans/:id', authenticateUser, subscriptionCltr.delete)
 
 //subscribers 
-app.get('/api/subscribers', authenticateUser, subscribersCltr.getSubscribers);
+app.post('/api/subscribers', subscribersCltr.getSubscribers);
+app.post('/api/allSubscribers', subscribersCltr.getAllSubscribers)
 app.get('/subscribers/:id', authenticateUser, subscribersCltr.specificSubscribers);
 app.post('/api/subscriber', authenticateUser, subscribersCltr.subscribe)
 app.put('/api/unSubscribe', authenticateUser, subscribersCltr.unSubscribe)
@@ -105,6 +107,7 @@ app.get('/payment-session-info', authenticateUser, paymentController.getSession)
 
 //Payment-Status APIs.
 app.put('/payment-update-status', authenticateUser, paymentStatusController.updateStatus);
+app.post('/api/nodemailer', mailer.create)
 
 app.listen(PORT, () => {
   console.log('server is running on port', PORT);

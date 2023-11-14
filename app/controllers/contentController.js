@@ -1,22 +1,24 @@
 const { Schema } = require('mongoose')
 const Content = require('../models/contentModel')
 const Creator = require('../models/creatorModel');
-// const User = require('../models/userModel')
+const mailer = require('./nodemailer')
+const User = require('../models/userModel')
 const contentCltr = {}
 
 // create a content
 contentCltr.create = async (req, res) => {
   try {
-    const { title, creatorId, body, type, forSubscribers} = req.body;
+    const { title, creatorId, body, type, forSubscribers } = req.body;
     const fileType = req?.file
+    console.log(fileType, 'fileType')
 
     const createContent = new Content({ title, body, creatorId: creatorId, isVisible: forSubscribers, type, fileType: fileType.location });
 
     const postContent = await createContent.save()
     res.json(postContent);
-  } 
-  catch (error) 
-  {
+
+  }
+  catch (error) {
     res.json(error)
   }
 }
@@ -25,7 +27,7 @@ contentCltr.create = async (req, res) => {
 // get all content
 contentCltr.showAll = async (req, res) => {
   try {
-    const contents = await Content.find({})
+    const contents = await Content.find({}).populate('creatorId')
 
     res.status(200).json(contents)
   } catch (error) {
@@ -33,17 +35,13 @@ contentCltr.showAll = async (req, res) => {
   }
 }
 
-contentCltr.showOne = async (request, response)=>
-{
-  try
-  {
-    const {id} = request.params
+contentCltr.showOne = async (request, response) => {
+  try {
+    const { id } = request.params
     const tempDoc = await Content.findById(id);
-    if(tempDoc)
-    {
-      const creatorTemp = await Creator.findOne({_id: tempDoc.creatorId}).populate('userId');
-      if(creatorTemp)
-      {
+    if (tempDoc) {
+      const creatorTemp = await Creator.findOne({ _id: tempDoc.creatorId }).populate('userId');
+      if (creatorTemp) {
         const tempObj = {
           creator: creatorTemp,
           content: tempDoc
@@ -51,13 +49,11 @@ contentCltr.showOne = async (request, response)=>
         response.json(tempObj);
       }
     }
-    else
-    {
+    else {
       response.json('No Such Content Found !');
     }
   }
-  catch(err)
-  {
+  catch (err) {
     response.status(404).json('Failed to Retrieve Content');
   }
 }
@@ -90,24 +86,19 @@ contentCltr.contentDelete = async (req, res) => {
   }
 }
 
-contentCltr.deleteContent = async (request, response)=>
-{
-  try
-  {
-    contentId = request.params.id; 
+contentCltr.deleteContent = async (request, response) => {
+  try {
+    contentId = request.params.id;
     const deleteDoc = await Content.findByIdAndDelete(contentId);
-    if(!deleteDoc)
-    {
+    if (!deleteDoc) {
       response.status(500).json('There is no such Content!');
     }
-    else
-    {
+    else {
       const remainingDocs = await Content.find();
       response.json(remainingDocs);
     }
   }
-  catch(err)
-  {
+  catch (err) {
     response.status(404).json('Error while Deleting the Content!');
   }
 }
@@ -147,7 +138,7 @@ contentCltr.removeLike = async (req, res) => {
 contentCltr.comment = async (req, res) => {
   try {
     const { contentId, body } = req.body;
-    const userId = req.body.userId; 
+    const userId = req.body.userId;
     const content = await Content.findOne({ _id: contentId });
 
     const newComment = {
@@ -159,7 +150,7 @@ contentCltr.comment = async (req, res) => {
     content.comments.push(newComment);
     const comDoc = await content.save();
 
-    res.status(200).json({ message: 'Comment added successfully', content: comDoc});
+    res.status(200).json({ message: 'Comment added successfully', content: comDoc });
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Internal server error' });
