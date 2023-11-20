@@ -19,7 +19,8 @@ const authorization = require('./app/middlewares/authorization');
 const mailer = require('./app/controllers/nodemailer')
 
 
-const upload = require('./upload')
+const upload = require('./upload');
+const usersCtrl = require("./app/controllers/userController");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -60,6 +61,7 @@ app.post('/api/users/login', usersCltr.login);
 app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
 app.delete('/api/user/:id', authenticateUser, authorization, usersCltr.delete);
+app.post('/api/fetchuser/:id',usersCtrl.fetchAccount)
 
 //creator routes
 
@@ -68,6 +70,7 @@ app.delete('/api/user/:id', authenticateUser, authorization, usersCltr.delete);
 app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
 //Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
+app.post('/api/fetchprofile',creatorCltr.fetchProfile)
 app.get('/api/creators', authenticateUser, authorization, creatorCltr.show);
 app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
 app.post('/api/creator/follow', creatorCltr.followers)

@@ -45,6 +45,17 @@ creatorCltr.create = async (req, res) => {
     }
 };
 
+creatorCltr.fetchProfile= async(req,res) =>{
+    try{
+        const body = req.body
+        const tempData = await Creator.find({_id:body._id})
+        res.json(tempData)
+    }
+    catch(e){
+        res.json(e)
+    }
+}
+
 creatorCltr.show = async (req, res) => {
     try {
         const creators = await Creator.find().populate('userId')
@@ -54,6 +65,8 @@ creatorCltr.show = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve creators', message: error.message })
     }
 }
+
+
 
 creatorCltr.showOne = async (req, res) =>
 {
@@ -75,6 +88,7 @@ creatorCltr.showOne = async (req, res) =>
         res.status(400).json(err.message);
     }
 }
+
 
 creatorCltr.update = async (req, res) => {
     console.log('hi');
