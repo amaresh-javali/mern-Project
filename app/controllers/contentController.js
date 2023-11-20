@@ -39,7 +39,7 @@ contentCltr.allContent = async (request, response)=>
 {
   try
   {
-    const contents = await Content.find({}).populate('creatorId');
+    const contents = await Content.findOne({id:creator._id}).populate('creatorId');
     const options = {
       path: 'creatorId.userId',
       model: 'User'

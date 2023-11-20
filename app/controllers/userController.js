@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const Content = require('../models/contentModel');
 
 const usersCtrl = {};
 
@@ -10,20 +11,17 @@ usersCtrl.register = async (req, res) => {
     try {
         const body = pick(req.body, ['username', 'email', 'password']);
 
-        if (!validator.isStrongPassword(body.password)) 
-        {
+        if (!validator.isStrongPassword(body.password)) {
             return res.status(400).json({ error: 'Password requirements not met' });
         }
 
-        const check = await User.findOne({email: body.email});
+        const check = await User.findOne({ email: body.email });
 
-        if(body.email === 'rishav@gmail.com')
-        {
+        if (body.email === 'rishav@gmail.com') {
             body.role = 'admin';
         };
 
-        if(!check)
-        {
+        if (!check) {
             const user = new User(body)
             const salt = await bcrypt.genSalt();
             const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -32,13 +30,11 @@ usersCtrl.register = async (req, res) => {
             const userDoc = await user.save();
             res.json(userDoc);
         }
-        else
-        {
-            res.json({error: 'This Email is already registered!'});
+        else {
+            res.json({ error: 'This Email is already registered!' });
         }
-    } 
-    catch (error) 
-    {
+    }
+    catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -78,10 +74,25 @@ usersCtrl.account = async (req, res) => {
     }
 };
 
+usersCtrl.fetchAccount = async (req, res) => {
+    try {
+        console.log(req.params.id, 'params')
+        console.log(req.query, 'req.query')
+        const body = req.body
+        console.log(body, 'account body')
+        const tempData = await User.findById({ _id: req.params.id })
+        const contentData = await Content.find({creatorId: req.query.creator})
+        res.json({tempData, contentData})
+    }
+    catch (e) {
+        res.json(e)
+    }
+}
+
 usersCtrl.getAllUsers = async (req, res) => {
     try {
         // Retrieve all users from the database
-        const allUsers = await User.find({users: req.params.id});
+        const allUsers = await User.find({ users: req.params.id });
 
         res.json(allUsers);
     } catch (error) {
@@ -90,23 +101,19 @@ usersCtrl.getAllUsers = async (req, res) => {
     }
 };
 
-usersCtrl.delete = async (request, response)=>
-{
-    try
-    {
-        const deleteId = request.params.id; 
-        
+usersCtrl.delete = async (request, response) => {
+    try {
+        const deleteId = request.params.id;
+
         const deleteDoc = await User.findByIdAndDelete(deleteId);
-        if(!deleteDoc)
-        {
+        if (!deleteDoc) {
             response.status(404).json('No Such Document to delete !');
         }
-        
+
         const remainDocs = await User.find();
         response.json(remainDocs);
     }
-    catch(err)
-    {
+    catch (err) {
         console.log(err.message);
         response.json(err.message);
     }
