@@ -5,19 +5,19 @@ const Schema = mongoose.Schema; // Import the Schema object
 const contentSchema = new Schema({
     title: {
         type: String,
-        required: true
+        // required: true
     },
     body: {
         type: String,
-        required: true
+        // required: true
     },
     type: {
         type: String,
-        required: true
+        // required: true
     },
     category: {
-        type: String, 
-        required: true
+        type: String,
+        // required: true
     },
     creatorId: {
         type: Schema.Types.ObjectId,
@@ -30,7 +30,7 @@ const contentSchema = new Schema({
                 type: Schema.Types.ObjectId,
                 ref: 'User'
             },
-           
+
         }
     ],
     comments: [
@@ -40,24 +40,24 @@ const contentSchema = new Schema({
                 type: Schema.Types.ObjectId,
                 ref: 'User'
             },
-            postId:{
-                type:Schema.Types.ObjectId,
-                ref:'Content'
+            postId: {
+                type: Schema.Types.ObjectId,
+                ref: 'Content'
             }
         }
     ],
-    isVisible: 
-        {
-            type: Boolean,
-            default:true
-        }
+    isVisible:
+    {
+        type: Boolean,
+        default: true
+    }
     ,
-    fileType:{
-        type:String,
+    fileType: {
+        type: String,
         required:true
     }
-    
-}, {timestamps: true});
+
+}, { timestamps: true });
 
 const Content = mongoose.model('Content', contentSchema);
 

@@ -8,7 +8,7 @@ mailer.create = async (req, res) => {
   try {
     console.log(req.body, 'node-mailer')
     const body = req.body
-    console.log(body, 'body')
+    // console.log(body, 'body')
     const subscribers = body
     setTimeout(() =>{
     subscribers.map(async(ele) =>{

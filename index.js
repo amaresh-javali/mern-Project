@@ -7,6 +7,7 @@ const configureDB = require('./config/db');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const { uuid } = require('uuidv4')
+const { checkSchema } = require('express-validator')
 const usersCltr = require('./app/controllers/userController')
 const creatorCltr = require('./app/controllers/creatorController')
 const contentCltr = require('./app/controllers/contentController')
@@ -17,7 +18,8 @@ const paymentStatusController = require('./app/controllers/paymentStatusControll
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
 const mailer = require('./app/controllers/nodemailer')
-
+const { userRegisterValidationSchema, userLoginValidationSchema } = require('./app/helpers/user-validation')
+const  contentValidation = require('./app/helpers/content-validation')
 
 const upload = require('./upload');
 const usersCtrl = require("./app/controllers/userController");
@@ -56,12 +58,12 @@ app.use('/uploads', express.static('uploads'))
 // Your existing routes and middleware definitions
 
 //Basic API calls.
-app.post('/api/users/register', usersCltr.register);
-app.post('/api/users/login', usersCltr.login);
+app.post('/api/users/register', checkSchema(userRegisterValidationSchema), usersCltr.register);
+app.post('/api/users/login', checkSchema(userLoginValidationSchema), usersCltr.login);
 app.get('/api/users/account', authenticateUser, usersCltr.account);
 app.get('/api/users', usersCltr.getAllUsers);
 app.delete('/api/user/:id', authenticateUser, authorization, usersCltr.delete);
-app.post('/api/fetchuser/:id',usersCtrl.fetchAccount)
+app.post('/api/fetchuser/:id', usersCtrl.fetchAccount)
 
 //creator routes
 
@@ -70,7 +72,7 @@ app.post('/api/fetchuser/:id',usersCtrl.fetchAccount)
 app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
 //Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
-app.post('/api/fetchprofile',creatorCltr.fetchProfile)
+app.post('/api/fetchprofile', creatorCltr.fetchProfile)
 app.get('/api/creators', authenticateUser, authorization, creatorCltr.show);
 app.put('/api/creator/:id', authenticateUser, creatorCltr.update);
 app.post('/api/creator/follow', creatorCltr.followers)
@@ -78,7 +80,7 @@ app.post('/api/creator/unfollow', creatorCltr.unFollow)
 app.delete('/api/creator/:id', authenticateUser, authorization, creatorCltr.delete);
 
 // content api routes
-app.post('/api/content/create', upload.single('fileType'), authenticateUser, contentCltr.create)
+app.post('/api/content/create', upload.single('fileType'),checkSchema(contentValidation) , authenticateUser, contentCltr.create)
 app.get('/api/content', contentCltr.showAll);
 app.get('/content-all', authenticateUser, authorization, contentCltr.allContent);
 app.get('/content/:id', authenticateUser, contentCltr.showOne);
