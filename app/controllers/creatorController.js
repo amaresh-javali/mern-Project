@@ -7,9 +7,15 @@ const creatorCltr = {};
 creatorCltr.create = async (req, res) => {
     try {
         const errors = validationResult(req);
+
+        const errorArray = errors.errors.map((err)=>
+        {
+            return err.msg; 
+        });
+        const errorString = errorArray.join(', ');
         if(!errors.isEmpty())
         {
-            return res.status(401).json({errors: errors.array()});
+            return res.status(401).json(errorString);
         }
         
         const body = req.body;
