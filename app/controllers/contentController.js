@@ -40,9 +40,17 @@ contentCltr.showAll = async (req, res) => {
 }
 
 // admin call for all content. 
+
 contentCltr.allContent = async (request, response) => {
   try {
     const contents = await Content.findOne({ id: creator._id }).populate('creatorId');
+
+contentCltr.allContent = async (request, response)=>
+{
+  try
+  {
+    const contents = await Content.find().populate('creatorId');
+
     const options = {
       path: 'creatorId.userId',
       model: 'User'
