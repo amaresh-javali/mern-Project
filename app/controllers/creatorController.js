@@ -1,10 +1,23 @@
 const User = require('../models/userModel');
 const Creator = require('../models/creatorModel');
+const {validationResult} = require('express-validator');
 
 const creatorCltr = {};
 
 creatorCltr.create = async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        const errorArray = errors.errors.map((err)=>
+        {
+            return err.msg; 
+        });
+        const errorString = errorArray.join(', ');
+        if(!errors.isEmpty())
+        {
+            return res.status(401).json(errorString);
+        }
+        
         const body = req.body;
         const id = req.user._id;
         //const image = req.file;

@@ -17,7 +17,8 @@ const paymentStatusController = require('./app/controllers/paymentStatusControll
 const authenticateUser = require('./app/middlewares/authentication');
 const authorization = require('./app/middlewares/authorization');
 const mailer = require('./app/controllers/nodemailer')
-
+const { checkSchema } = require('express-validator');
+const creatorValidation = require('../back-end/app/helpers/creatorValidation');
 
 const upload = require('./upload');
 const usersCtrl = require("./app/controllers/userController");
@@ -67,7 +68,7 @@ app.post('/api/fetchuser/:id',usersCtrl.fetchAccount)
 
 // app.post('/api/creator', upload.single('fileType'), authenticateUser, creatorCltr.create);
 
-app.post('/api/creator', /*upload.single('image')*/ authenticateUser, creatorCltr.create);
+app.post('/api/creator', checkSchema(creatorValidation), authenticateUser, creatorCltr.create);
 //Would have to work with this api. get the creator id and then proceed. 
 app.get('/api/creator', authenticateUser, creatorCltr.showOne);
 app.post('/api/fetchprofile',creatorCltr.fetchProfile)
