@@ -1,38 +1,39 @@
 const { pick } = require('lodash');
+const { validationResult } = require('express-validator')
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const validator = require('validator');
+// const validator = require('validator');
 const Content = require('../models/contentModel');
 
 const usersCtrl = {};
 
 usersCtrl.register = async (req, res) => {
+    const errors = validationResult(req)
+    const errArr = errors.errors.map((err) => {
+        return err.msg
+    })
+    const errString = errArr.join(', ')
+    if (!errors.isEmpty()) {
+        return res.status(400).json(errString)
+    }
     try {
         const body = pick(req.body, ['username', 'email', 'password']);
 
-        if (!validator.isStrongPassword(body.password)) {
-            return res.status(400).json({ error: 'Password requirements not met' });
-        }
-
-        const check = await User.findOne({ email: body.email });
+        // if (!validator.isStrongPassword(body.password)) {
+        //     return res.status(400).json({ error: 'Password requirements not met' });
+        // }
+        // const check = await User.findOne({ email: body.email });
 
         if (body.email === 'rishav@gmail.com') {
             body.role = 'admin';
         };
-
-        if (!check) {
-            const user = new User(body)
-            const salt = await bcrypt.genSalt();
-            const hashedPassword = await bcrypt.hash(user.password, salt);
-            user.password = hashedPassword;
-
-            const userDoc = await user.save();
-            res.json(userDoc);
-        }
-        else {
-            res.json({ error: 'This Email is already registered!' });
-        }
+        const user = new User(body)
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(user.password, salt);
+        user.password = hashedPassword;
+        const userDoc = await user.save();
+        res.json(userDoc);
     }
     catch (error) {
         res.status(500).json({ error: 'Internal server error' });
@@ -40,6 +41,10 @@ usersCtrl.register = async (req, res) => {
 };
 
 usersCtrl.login = async (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
     try {
         const body = pick(req.body, ['email', 'password']);
         const user = await User.findOne({ email: body.email });
@@ -81,8 +86,8 @@ usersCtrl.fetchAccount = async (req, res) => {
         const body = req.body
         console.log(body, 'account body')
         const tempData = await User.findById({ _id: req.params.id })
-        const contentData = await Content.find({creatorId: req.query.creator})
-        res.json({tempData, contentData})
+        const contentData = await Content.find({ creatorId: req.query.creator })
+        res.json({ tempData, contentData })
     }
     catch (e) {
         res.json(e)
